@@ -24,8 +24,8 @@ export const botConfig = {
     activities: [
       {
         name: "Custom Status", // required by Discord API, not shown in the client
-        state: "Thinking about the upcoming service at Revive Church!",     // this is what people actually see
-        type: 0,               // Custom
+        state: "stalking",     // this is what people actually see
+        type: 4,               // Custom
       },
     ],
   },
@@ -52,7 +52,7 @@ export const botConfig = {
 
     // Command prefix for text-based commands (e.g., "!" for "!ping").
     // Supports both slash commands and prefix commands.
-    prefix: process.env.PREFIX || "/",
+    prefix: process.env.PREFIX || "!",
   },
 
   // =========================
@@ -154,8 +154,60 @@ export const botConfig = {
       url: null,
     },
   },
-},
-  }, 
+
+  // =========================
+  // ECONOMY SETTINGS
+  // =========================
+  economy: {
+    currency: {
+      // Currency display name.
+      name: "coins",
+      // Plural display name.
+      namePlural: "coins",
+      // Currency symbol shown in balances.
+      symbol: "$",
+    },
+
+    // Starting balance for new users.
+    startingBalance: 0,
+
+    // Maximum bank amount before upgrades (if upgrades are used).
+    baseBankCapacity: 100000,
+
+    // Daily reward amount.
+    dailyAmount: 100,
+
+    // Work command random payout range.
+    workMin: 10,
+    workMax: 100,
+
+    // Beg command random payout range.
+    begMin: 5,
+    begMax: 50,
+
+    // Command cooldowns (milliseconds).
+    cooldowns: {
+      daily: 24 * 60 * 60 * 1000,
+      work: 60 * 60 * 1000,
+      crime: 2 * 60 * 60 * 1000,
+      rob: 4 * 60 * 60 * 1000,
+    },
+
+    // Chance to succeed when robbing (0.4 = 40%).
+    robSuccessRate: 0.4,
+
+    // Jail time after failed rob (milliseconds).
+    // 3600000 = 1 hour.
+    robFailJailTime: 3600000,
+  },
+
+  // =========================
+  // SHOP SETTINGS
+  // =========================
+  // Add shop defaults here when needed.
+  shop: {
+
+  },
 
   // =========================
   // TICKET SYSTEM
@@ -528,7 +580,7 @@ export function getBotMessage(key, replacements = {}) {
   let message = botConfig.messages?.[key] || key;
 
   for (const [placeholder, value] of Object.entries(replacements)) {
-    message = message.replace(new RegExp(`\\{${placeholder}\\}`, "g"), String(value));
+    message = message.replace(new RegExp(`\{${placeholder}\}`, "g"), String(value));
   }
 
   return message;
