@@ -11,7 +11,7 @@ export const botConfig = {
   // - "invisible" = appears offline
   presence: {
     // Current online state shown on Discord.
-    status: "dnd",
+    status: "online",
 
     // Activity lines shown under the bot name.
     // `type` number mapping from Discord:
@@ -24,8 +24,8 @@ export const botConfig = {
     activities: [
       {
         name: "Custom Status", // required by Discord API, not shown in the client
-        state: "Thinking about the upcoming service at Revive Church! Can't wait.",     // this is what people actually see
-        type: 3,               // Custom
+        state: "stalking",     // this is what people actually see
+        type: 4,               // Custom
       },
     ],
   },
@@ -155,7 +155,50 @@ export const botConfig = {
     },
   },
 
-  
+  // =========================
+  // ECONOMY SETTINGS
+  // =========================
+  economy: {
+    currency: {
+      // Currency display name.
+      name: "coins",
+      // Plural display name.
+      namePlural: "coins",
+      // Currency symbol shown in balances.
+      symbol: "$",
+    },
+
+    // Starting balance for new users.
+    startingBalance: 0,
+
+    // Maximum bank amount before upgrades (if upgrades are used).
+    baseBankCapacity: 100000,
+
+    // Daily reward amount.
+    dailyAmount: 100,
+
+    // Work command random payout range.
+    workMin: 10,
+    workMax: 100,
+
+    // Beg command random payout range.
+    begMin: 5,
+    begMax: 50,
+
+    // Command cooldowns (milliseconds).
+    cooldowns: {
+      daily: 24 * 60 * 60 * 1000,
+      work: 60 * 60 * 1000,
+      crime: 2 * 60 * 60 * 1000,
+      rob: 4 * 60 * 60 * 1000,
+    },
+
+    // Chance to succeed when robbing (0.4 = 40%).
+    robSuccessRate: 0.4,
+
+    // Jail time after failed rob (milliseconds).
+    // 3600000 = 1 hour.
+    robFailJailTime: 3600000,
   },
 
   // =========================
@@ -392,7 +435,7 @@ export const botConfig = {
   // =========================
   messages: {
     noPermission: "You do not have permission to use this command.",
-    cooldownActive: "Please wait {time} before using this command again.",
+    cooldownActive: "Please wait {time} before using this command.",
     errorOccurred: "An error occurred while executing this command.",
     missingPermissions:
       "I am missing required permissions to perform this action.",
@@ -406,7 +449,7 @@ export const botConfig = {
   // Set any feature to `false` to disable it globally.
   features: {
     // Core systems.
-    economy: false,
+    economy: true,
     leveling: true,
     moderation: true,
     logging: true,
@@ -456,8 +499,6 @@ export function validateConfig(config) {
   }
 
   if (process.env.NODE_ENV === 'production') {
-    // A full connection URL (DATABASE_URL / POSTGRES_URL) satisfies all Postgres
-    // requirements, matching how src/config/database/postgres.js resolves the pool config.
     const hasConnectionUrl = Boolean(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 
     if (!hasConnectionUrl) {
@@ -489,7 +530,7 @@ export const BotConfig = botConfig;
 const COMMAND_CATEGORY_FEATURE_MAP = {
   birthday: "birthday",
   community: "community",
-  economy: "false",
+  economy: "economy",
   fun: "fun",
   giveaway: "giveaways",
   jointocreate: "joinToCreate",
@@ -537,7 +578,7 @@ export function getBotMessage(key, replacements = {}) {
   let message = botConfig.messages?.[key] || key;
 
   for (const [placeholder, value] of Object.entries(replacements)) {
-    message = message.replace(new RegExp(`\{${placeholder}\}`, "g"), String(value));
+    message = message.replace(new RegExp(`\\{${placeholder}\\}`, "g"), String(value));
   }
 
   return message;
@@ -579,10 +620,8 @@ export function getDefaultApplicationQuestions() {
 }
 
 export function getColor(path, fallback = "#99AAB5") {
-  
   if (typeof path === "number") return path;
   if (typeof path === "string" && path.startsWith("#")) {
-    
     return parseInt(path.replace("#", ""), 16);
   }
   const result = path
@@ -591,7 +630,7 @@ export function getColor(path, fallback = "#99AAB5") {
       (obj, key) => (obj && obj[key] !== undefined ? obj[key] : fallback),
       botConfig.embeds.colors,
     );
-  
+
   if (typeof result === "string" && result.startsWith("#")) {
     return parseInt(result.replace("#", ""), 16);
   }
